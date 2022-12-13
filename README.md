@@ -1,7 +1,7 @@
 # codereview.gpt
 
 <p align='center'>
-    Reviews your Pull Requests using ChatGPT so that you can pretend to work.
+    Review GitHub Pull Requests using ChatGPT so that you can pretent do work.
 </p>
 <p align='center'>
     <a href="https://github.com/sturdy-dev/codereview.gpt/blob/main/LICENSE.txt">
@@ -62,11 +62,11 @@ https://user-images.githubusercontent.com/4030927/207372123-46d7ee8c-bd3e-4272-8
 
 ###
 
-**Q:** Why do I want this?
+**Q:** Why do you want this?
 
 **A:** Plenty of reasons! You can:
 
-    - pretent to work while playing games instead
+    - pretend to work while playing games instead
     - appear smart to your colleagues
     - enable a future skynet
     - actually catch some bugs you missed
