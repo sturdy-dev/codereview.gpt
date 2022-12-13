@@ -1,5 +1,8 @@
 # codereview.gpt
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/sturdy-dev/codereview.gpt/main/public/icons/icon_128.png">
+</p>
 <p align='center'>
     Review GitHub Pull Requests using ChatGPT so that you can pretent do work.
 </p>
@@ -40,7 +43,7 @@ https://user-images.githubusercontent.com/4030927/207372123-46d7ee8c-bd3e-4272-8
 
 **Q:** Are the reviews 100% trustworthy?
 
-**A:** No, as of 2022. This tool can help you spot bugs, but as with anything, use your judgement.
+**A:** Not yet, as of 2022. This tool can help you spot bugs, but as with anything, use your judgement.
 
 ###
 
@@ -50,7 +53,7 @@ https://user-images.githubusercontent.com/4030927/207372123-46d7ee8c-bd3e-4272-8
 
 ###
 
-**Q:** Does the extension leave any comments on the Pull Request?
+**Q:** Does the extension post comments on the Pull Request page?
 
 **A:** No. If you want any of the feedback as PR comments, you can just copy paste the output.
 
@@ -62,7 +65,7 @@ https://user-images.githubusercontent.com/4030927/207372123-46d7ee8c-bd3e-4272-8
 
 ###
 
-**Q:** Why do you want this?
+**Q:** Why would you want this?
 
 **A:** Plenty of reasons! You can:
 
