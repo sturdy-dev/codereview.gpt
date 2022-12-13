@@ -20,7 +20,10 @@
 
 This is a Chrome extension which reviews Pull Requests for you using [ChatGPT](https://chat.openai.com/).
 
-DEMO_GIF_PLACEHOLDER
+Here's an example output for [this](https://github.com/sturdy-dev/semantic-code-search/pull/17) Pull Request:
+
+https://user-images.githubusercontent.com/4030927/207372123-46d7ee8c-bd3e-4272-8ccb-4639f9f71458.mp4
+
 
 ## Usage
 
