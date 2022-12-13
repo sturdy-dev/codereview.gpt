@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+code {
+    @apply inline-block rounded-sm  bg-slate-900 text-slate-200 px-1
+}
+
+pre {
+    @apply w-full overflow-x-scroll rounded-md py-2  bg-slate-900 text-slate-200 
+}

@@ -1,0 +1,105 @@
+# codereview.gpt
+
+<p align='center'>
+    Reviews your Pull Requests using ChatGPT so that you can pretend to work.
+</p>
+<p align='center'>
+    <a href="https://github.com/sturdy-dev/codereview.gpt/blob/main/LICENSE.txt">
+        <img alt="GitHub"
+        src="https://img.shields.io/github/license/sturdy-dev/codereview.gpt">
+    </a>
+</p>
+<p align="center">
+  <a href="#overview">🔍 Overview</a> •
+  <a href="#usage">💻 Usage</a> •
+  <a href="#faq">📖 FAQ</a> •
+  <a href="#installation">🔧 Installation</a>
+</p>
+
+## Overview
+
+This is a Chrome extension which reviews Pull Requests for you using [ChatGPT](https://chat.openai.com/).
+
+DEMO_GIF_PLACEHOLDER
+
+## Usage
+
+- Navigate to a GitHub Pull Request that you want a review for.
+- Click the extension icon
+- If you have not already, the extension will ask you to log in at [chat.openai.com](https://chat.openai.com)
+- You get code review comments from ChatGPT in the popup window
+
+**NB:** Running the review multiple times often produces different feedback, so if you are dealing with a larger PR, it might be a good idea to do that to get the most out of it.
+
+## FAQ
+
+###
+
+**Q:** Are the reviews 100% trustworthy?
+
+**A:** No, as of 2022. This tool can help you spot bugs, but as with anything, use your judgement.
+
+###
+
+**Q:** What aspects of the Pull Request are considered during the review?
+
+**A:** The model gets the code changes, the PR title and description, as well as a list of the files and folders in the root of the project.
+
+###
+
+**Q:** Does the extension leave any comments on the Pull Request?
+
+**A:** No. If you want any of the feedback as PR comments, you can just copy paste the output.
+
+###
+
+**Q:** Is this a GPT wrapper?
+
+**A:** Yes, [but](https://twitter.com/creatine_cycle/status/1600331160776998913)
+
+###
+
+**Q:** Why do I want this?
+
+**A:** Plenty of reasons! You can:
+
+    - pretent to work while playing games instead
+    - appear smart to your colleagues
+    - enable a future skynet
+    - actually catch some bugs you missed
+
+## Installation
+
+You can install `codereview.gpt` from the [Chrome Web Store](https://chrome.google.com) or build it from source locally.
+
+### From the Chrome Web Store (recommended)
+
+Go to the [extension page](https://chrome.google.com) at the Chrome Web Store and add `codereview.gpt`.
+
+### From source
+
+- Clone this repository `git clone foo && cd foo`
+- Install the dependencies `npm`
+- Run the build script `npm run build`
+- Navigate to `chrome://extensions`
+- Enable Developer Mode
+- Click the 'Load unpacked' button and navigate to the `build` directory in the project
+
+## Supported browsers
+
+Currently, only Chrome is supported
+
+## Permissions
+
+This is a list of permissions the extension uses with the respective reason.
+
+- `activeTab` is used to get the URL or the active tab. This is needed to fetch the get the Pull Request details
+- `storage` is used to cache the responses from OpenAI
+
+## Credits
+
+This project is inspired by [clmnin/summarize.site](https://github.com/clmnin/summarize.site)
+
+## License
+
+Semantic Code Search is distributed under [AGPL-3.0-only](LICENSE.txt). For Apache-2.0 exceptions — <kiril@codeball.ai>

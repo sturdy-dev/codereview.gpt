@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>codereview.gpt</title>
+</head>
+
+<body class="text-slate-900">
+  <div class="m-4 w-[48rem] max-h-[48rem] overflow-y-auto flex flex-col space-y-2">
+    <div class="flex flex-col font-mono space-y-2">
+
+      <div class="flex flex-row items-center">
+        <div class="text-xl flex-grow">
+          codereview.gpt
+          <span id="codeball-link" class="text-xs invisible text-slate-400">(by <a href="https://codeball.ai"
+              target="_blank" class="inline text-orange-600 hover:text-orange-500">codeball.ai</a>)</span>
+        </div>
+        <div id="rerun-btn"
+          class="invisible text-lg border border-slate-900 hover:bg-slate-200 cursor-pointer px-2 rounded-md">
+          run again
+        </div>
+      </div>
+
+      <div class="flex flex-row items-center text-sm text-slate-400">
+        <div class="flex-grow flex flex-row space-x-1 items-center truncate overflow-hidden">
+          <span id="status-icon">
+          </span>
+          <span id="pr-url"></span></p>
+        </div>
+      </div>
+    </div>
+    <hr />
+
+    <div class="my-4">
+
+      <div id="result" class="flex flex-col space-y-2"></div>
+
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
