@@ -76,7 +76,7 @@ https://user-images.githubusercontent.com/4030927/207372123-46d7ee8c-bd3e-4272-8
 
 ## Installation
 
-You can install `codereview.gpt` from the [Chrome Web Store](https://chrome.google.com) or build it from source locally.
+You can install `codereview.gpt` from the [Chrome Web Store](https://chrome.google.com/webstore/detail/codereviewgpt/amdfidcajdihmbhmmgohhkoaijpkocdn) or build it from source locally.
 
 ### From the Chrome Web Store (recommended)
 
