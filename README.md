@@ -49,7 +49,7 @@ https://user-images.githubusercontent.com/4030927/207372123-46d7ee8c-bd3e-4272-8
 
 **Q:** What aspects of the Pull Request are considered during the review?
 
-**A:** The model gets the code changes, the PR title and description, as well as a list of the files and folders in the root of the project.
+**A:** The model gets the code changes and the commit messages in a [patch](https://git-scm.com/docs/git-format-patch) format.
 
 ###
 
@@ -85,7 +85,7 @@ Go to the [extension page](https://chrome.google.com) at the Chrome Web Store an
 ### From source
 
 - Clone this repository `git clone foo && cd foo`
-- Install the dependencies `npm`
+- Install the dependencies `npm install`
 - Run the build script `npm run build`
 - Navigate to `chrome://extensions`
 - Enable Developer Mode

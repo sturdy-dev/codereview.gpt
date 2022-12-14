@@ -137,38 +137,22 @@ async function reviewPR(org, repo, pr) {
   document.getElementById('result').innerHTML = ''
   chrome.storage.session.remove([org + repo + pr])
 
-  let defaultBranch = await fetch(`https://api.github.com/repos/${org}/${repo}`).then((r) => r.json()).then((r) => r.default_branch)
-  let files = await fetch(`https://api.github.com/repos/${org}/${repo}/git/trees/${defaultBranch}`).then((r) => r.json()).then((r) => r.tree.map((x) => x.path))
-
-  let prDetails = await fetch(`https://api.github.com/repos/${org}/${repo}/pulls/${pr}`).then((r) => r.json())
-
-  let diff = await fetch(`https://patch-diff.githubusercontent.com/raw/${org}/${repo}/pull/${pr}.diff`).then((r) => r.text())
+  let patch = await fetch (`https://patch-diff.githubusercontent.com/raw/${org}/${repo}/pull/${pr}.patch`).then((r) => r.text())
 
   let prompt = `
   Act as a code reviewer of a Pull Request, providing feedback on the code changes below.
-  For full context, you are provided with a list of files at the top level of the repository, as well as the Pull Request title, description and changes (diffs).
+  You are provided with the Pull Request changes in a patch format.
+  Each patch entry has the commit message in the Subject line followed by the code changes (diffs) in a unidiff format.
   \n\n
-  Files at the top (root) level of the repository:
+  Patch of the Pull Request to review:
   \n
-  ${files}
-  \n\n
-  Pull Request title: 
-  \n
-  ${prDetails.title}
-  \n\n
-  Pull Request author description:
-  \n
-  ${prDetails.body}
-  \n\n
-  The Pull Request code changes (diffs):
-  \n
-  ${diff}
+  ${patch}
   \n\n
   
   As a code reviewer, your task is:
-  - Review the code changes (diffs) and provide feedback.
+  - Review the code changes (diffs) in the patch and provide feedback.
   - If there are any bugs, highlight them.
-  - Does the code do what it says in the description?
+  - Does the code do what it says in the commit messages?
   - Do not highlight minor issues and nitpicks.
   - Use bullet points if you have multiple comments.`
 
