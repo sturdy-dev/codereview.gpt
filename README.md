@@ -11,6 +11,10 @@
         <img alt="GitHub"
         src="https://img.shields.io/github/license/sturdy-dev/codereview.gpt">
     </a>
+    <a href="https://chrome.google.com/webstore/detail/codereviewgpt/amdfidcajdihmbhmmgohhkoaijpkocdn">
+      <img alt="Chrome Web Store"
+      src="https://img.shields.io/chrome-web-store/v/amdfidcajdihmbhmmgohhkoaijpkocdn">
+    </a>
 </p>
 <p align="center">
   <a href="#overview">🔍 Overview</a> •
@@ -27,6 +31,7 @@ Here's an example output for [this](https://github.com/sturdy-dev/semantic-code-
 
 https://user-images.githubusercontent.com/4030927/207372123-46d7ee8c-bd3e-4272-8ccb-4639f9f71458.mp4
 
+![example screenshot](https://raw.githubusercontent.com/sturdy-dev/codereview.gpt/main/docs/codereview_gpt_screenshot_1.png)
 
 ## Usage
 
@@ -43,7 +48,7 @@ https://user-images.githubusercontent.com/4030927/207372123-46d7ee8c-bd3e-4272-8
 
 **Q:** Are the reviews 100% trustworthy?
 
-**A:** Not yet, as of 2022. This tool can help you spot bugs, but as with anything, use your judgement.
+**A:** Not yet, as of 2022. This tool can help you spot bugs, but as with anything, use your judgement. Sometimes it hallucinates things that sound plausible but are false — in this case, re-run the review.
 
 ###
 
