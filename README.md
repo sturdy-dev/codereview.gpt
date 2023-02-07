@@ -4,7 +4,7 @@
   <img src="https://raw.githubusercontent.com/sturdy-dev/codereview.gpt/main/public/icons/icon_128.png">
 </p>
 <p align='center'>
-    Review GitHub Pull Requests using ChatGPT so that you can pretent do work.
+    Review GitHub Pull Requests using <a href="https://chat.openai.com" target="_blank">ChatGPT</a> so that you can pretend do work.
 </p>
 <p align='center'>
     <a href="https://github.com/sturdy-dev/codereview.gpt/blob/main/LICENSE.txt">
