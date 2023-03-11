@@ -133,14 +133,12 @@ async function callChatGPT(question, callback, onDone) {
 const showdown = require('showdown');
 const converter = new showdown.Converter();
 
-async function reviewPR(org, repo, pr) {
+async function reviewPR(diffPath) {
   inProgress(true);
   document.getElementById('result').innerHTML = '';
-  chrome.storage.session.remove([org + repo + pr]);
+  chrome.storage.session.remove([diffPath]);
 
-  let patch = await fetch(
-    `https://patch-diff.githubusercontent.com/raw/${org}/${repo}/pull/${pr}.patch`
-  ).then((r) => r.text());
+  let patch = await fetch(diffPath).then((r) => r.text());
 
   let prompt = `
   Act as a code reviewer of a Pull Request, providing feedback on the code changes below.
@@ -166,7 +164,7 @@ async function reviewPR(org, repo, pr) {
     },
     () => {
       chrome.storage.session.set({
-        [org + repo + pr]: document.getElementById('result').innerHTML,
+        [diffPath]: document.getElementById('result').innerHTML,
       });
       inProgress(false);
     }
@@ -178,8 +176,18 @@ async function run() {
   let prUrl = document.getElementById('pr-url');
   prUrl.textContent = tab.url;
 
+  let diffPath;
   let tokens = tab.url.split('/');
-  if (tokens[2] !== 'github.com' || tokens[5] !== 'pull') {
+
+  if (tab.url.includes('/-/merge_requests/')) {
+    // gitlab
+    diffPath = `${tokens[0]}//${tokens[2]}/${tokens[3]}/${tokens[4]}/${tokens[5]}/${tokens[6]}/${tokens[7]}.patch`;
+  } else if (tokens[2] === 'github.com' && tokens[5] === 'pull') {
+    // github
+    diffPath = `https://patch-diff.githubusercontent.com/raw/${tokens[3]}/${tokens[4]}/pull/${tokens[6]}.patch`;
+  }
+
+  if (!diffPath) {
     document.getElementById('result').innerHTML =
       'Please open a specific PR on github.com';
     inProgress(false, true, false);
@@ -190,20 +198,16 @@ async function run() {
 
   inProgress(true);
 
-  let org = tokens[3];
-  let repo = tokens[4];
-  let pr = tokens[6];
-
   document.getElementById('rerun-btn').onclick = () => {
-    reviewPR(org, repo, pr);
+    reviewPR(diffPath);
   };
 
-  chrome.storage.session.get([org + repo + pr]).then((result) => {
-    if (result[org + repo + pr]) {
-      document.getElementById('result').innerHTML = result[org + repo + pr];
+  chrome.storage.session.get([diffPath]).then((result) => {
+    if (result[diffPath]) {
+      document.getElementById('result').innerHTML = result[diffPath];
       inProgress(false);
     } else {
-      reviewPR(org, repo, pr);
+      reviewPR(diffPath);
     }
   });
 }
