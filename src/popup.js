@@ -234,7 +234,7 @@ async function run() {
   if (error != null) {
     document.getElementById('result').innerHTML = error
     inProgress(false, true, false);
-    await new Promise((r) => setTimeout(r, 40000));
+    await new Promise((r) => setTimeout(r, 4000));
     window.close();
     return // not a pr
   }
