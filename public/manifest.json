@@ -19,6 +19,7 @@
   ],
   "host_permissions": [
     "https://*.openai.com/",
-    "https://*.githubusercontent.com/"
+    "https://*.githubusercontent.com/",
+    "https://gitlab.com/"
   ]
 }
