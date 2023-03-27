@@ -26,6 +26,7 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
-    "eventsource-parser": "^0.0.5"
+    "eventsource-parser": "^0.0.5",
+    "node-html-parser": "^6.1.5"
   }
 }

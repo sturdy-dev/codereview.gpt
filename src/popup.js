@@ -2,6 +2,7 @@
 
 import { createParser } from "eventsource-parser";
 import './styles.css';
+import { parse } from 'node-html-parser';
 
 const spinner = `
         <svg aria-hidden="true" class="w-4 h-4 text-gray-200 animate-spin dark:text-slate-200 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -121,10 +122,16 @@ async function callChatGPT(question, callback, onDone) {
         onDone();
         return;
       }
-      const data = JSON.parse(message);
-      const text = data.message?.content?.parts?.[0];
-      if (text) {
-        callback(text);
+      try {
+        const data = JSON.parse(message);
+        const text = data.message?.content?.parts?.[0];
+        if (text) {
+          callback(text);
+        }
+      } catch (e) {
+        // Sometimes the API returns a datetime string, which causes the JSON parsing
+        // to fail in the middle of the output.
+        console.debug(e.message);
       }
     }
   });
@@ -132,29 +139,42 @@ async function callChatGPT(question, callback, onDone) {
 const showdown = require('showdown');
 const converter = new showdown.Converter()
 
-async function reviewPR(org, repo, pr) {
+async function reviewPR(diffPath, context, title) {
   inProgress(true)
   document.getElementById('result').innerHTML = ''
-  chrome.storage.session.remove([org + repo + pr])
+  chrome.storage.session.remove([diffPath])
 
-  let patch = await fetch (`https://patch-diff.githubusercontent.com/raw/${org}/${repo}/pull/${pr}.patch`).then((r) => r.text())
+  let patch = await fetch (diffPath).then((r) => r.text())
 
   let prompt = `
-  Act as a code reviewer of a Pull Request, providing feedback on the code changes below.
-  You are provided with the Pull Request changes in a patch format.
-  Each patch entry has the commit message in the Subject line followed by the code changes (diffs) in a unidiff format.
-  \n\n
-  Patch of the Pull Request to review:
-  \n
-  ${patch}
-  \n\n
-  
+  Act as a code reviewer of a Pull Request, providing feedback on the code changes below. Do not introduce yourselves.
+  The change is has the following title: ${title}.
   As a code reviewer, your task is:
   - Review the code changes (diffs) in the patch and provide feedback.
   - If there are any bugs, highlight them.
   - Does the code do what it says in the commit messages?
   - Do not highlight minor issues and nitpicks.
-  - Use bullet points if you have multiple comments.`
+  - Use bullet points if you have multiple comments.
+  - Be as concise as possible
+  - Assume positive intent
+
+  You are provided with the code changes in a patch format.
+  Each patch entry has the commit message in the Subject line followed by the code changes (diffs) in a unidiff format.
+
+  \n\n
+  Patch of the code change to review:
+  \n
+  ${patch}
+  \n\n
+
+  Additionally, a description was given to help you assist in understand why these changes were made.
+  \n
+  \n
+  Description of the code change to review in a markdown format:
+  \n
+  ${context}
+  \n
+  \n`
 
   callChatGPT(
     prompt,
@@ -162,11 +182,12 @@ async function reviewPR(org, repo, pr) {
       document.getElementById('result').innerHTML = converter.makeHtml(answer)
     },
     () => {
-      chrome.storage.session.set({ [org + repo + pr]: document.getElementById('result').innerHTML })
+      chrome.storage.session.set({ [diffPath]: document.getElementById('result').innerHTML })
       inProgress(false)
     }
   )
 }
+
 
 async function run() {
 
@@ -174,31 +195,62 @@ async function run() {
   let prUrl = document.getElementById('pr-url')
   prUrl.textContent = tab.url
 
+  let diffPath
+  let provider = ''
+  let error = null
   let tokens = tab.url.split('/')
-  if (tokens[2] !== 'github.com' || tokens[5] !== 'pull') {
-    document.getElementById('result').innerHTML = 'Please open a specific PR on github.com'
-    inProgress(false, true, false)
-    await new Promise(r => setTimeout(r, 4000));
+  let context = ''
+  let title = tab.title
+
+  if (tokens[2] === 'github.com') {
+    provider = 'GitHub'
+  }
+  else if (tokens[2] === 'gitlab.com') {
+    provider = 'GitLab'
+  }
+  else {
+    error = 'Only github.com or gitlab.com are supported.'
+  }
+
+  let contextRaw = await fetch (tab.url).then((r) => r.text())
+  const contextDom = parse(contextRaw);
+
+  if (provider === 'GitHub' && tokens[5] === 'pull') {
+    // The path towards the patch file of this change
+    diffPath = `https://patch-diff.githubusercontent.com/raw/${tokens[3]}/${tokens[4]}/pull/${tokens[6]}.patch`;
+    // The description of the author of the change
+    context = contextDom.querySelector('.markdown-body').textContent;
+  }
+  else if (provider === 'GitLab' && tab.url.includes('/-/merge_requests/')) {
+    // The path towards the patch file of this change
+    diffPath = tab.url + '.patch';
+    // The description of the author of the change
+    context = contextDom.querySelector('.description textarea').getAttribute('data-value');
+  }
+  else {
+    error = 'Please open a specific Pull Request or Merge Request on ' + provider
+  }
+ 
+  if (error != null) {
+    document.getElementById('result').innerHTML = error
+    inProgress(false, true, false);
+    await new Promise((r) => setTimeout(r, 40000));
     window.close();
     return // not a pr
   }
 
   inProgress(true)
 
-  let org = tokens[3]
-  let repo = tokens[4]
-  let pr = tokens[6]
-
   document.getElementById("rerun-btn").onclick = () => {
-    reviewPR(org, repo, pr)
+    reviewPR(diffPath, context, title)
   }
 
-  chrome.storage.session.get([org + repo + pr]).then((result) => {
-    if (result[org + repo + pr]) {
-      document.getElementById('result').innerHTML = result[org + repo + pr]
+  chrome.storage.session.get([diffPath]).then((result) => {
+    if (result[diffPath]) {
+      document.getElementById('result').innerHTML = result[diffPath]
       inProgress(false)
     } else {
-      reviewPR(org, repo, pr)
+      reviewPR(diffPath, context, title)
     }
   })
 }
