@@ -1,6 +1,5 @@
 'use strict';
 
-import { createParser } from "eventsource-parser";
 import './styles.css';
 import { parse } from 'node-html-parser';
 import { ChatGPTAPI } from 'chatgpt'
@@ -49,45 +48,6 @@ async function getApiKey() {
   }
   return options['openai_apikey'];
 }
-
-async function* streamAsyncIterable(stream) {
-  const reader = stream.getReader();
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
-        return;
-      }
-      yield value;
-    }
-  } finally {
-    reader.releaseLock();
-  }
-}
-
-
-async function fetchSSE(resource, options) {
-  const { onMessage, ...fetchOptions } = options;
-  const resp = await fetch(resource, fetchOptions);
-  if (resp.status > 399) {
-    resp.json().then((r) => {
-      inProgress(false, true)
-      onMessage(
-        JSON.stringify({ 'message': { 'content': { 'parts': [r.detail] } } }));
-    })
-    return
-  }
-  const parser = createParser((event) => {
-    if (event.type === "event") {
-      onMessage(event.data);
-    }
-  });
-  for await (const chunk of streamAsyncIterable(resp.body)) {
-    const str = new TextDecoder().decode(chunk);
-    parser.feed(str);
-  }
-}
-
 
 async function callChatGPT(messages, callback, onDone) {
   let apiKey;
