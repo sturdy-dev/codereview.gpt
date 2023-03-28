@@ -3,6 +3,7 @@
 import { createParser } from "eventsource-parser";
 import './styles.css';
 import { parse } from 'node-html-parser';
+import { ChatGPTAPI } from 'chatgpt'
 
 const spinner = `
         <svg aria-hidden="true" class="w-4 h-4 text-gray-200 animate-spin dark:text-slate-200 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -39,14 +40,14 @@ function inProgress(ongoing, failed = false, rerun = true) {
   }
 }
 
-async function getAccessToken() {
-  const resp = await fetch("https://chat.openai.com/api/auth/session")
-    .then((r) => r.json())
-    .catch(() => ({}));
-  if (!resp.accessToken) {
+async function getApiKey() {
+  let options = await new Promise((resolve) => {
+    chrome.storage.sync.get('openai_apikey', resolve);
+  });
+  if (!options && !options['openai_apikey']) {
     throw new Error("UNAUTHORIZED");
   }
-  return resp.accessToken;
+  return options['openai_apikey'];
 }
 
 async function* streamAsyncIterable(stream) {
@@ -88,54 +89,39 @@ async function fetchSSE(resource, options) {
 }
 
 
-async function callChatGPT(question, callback, onDone) {
-  let accessToken;
+async function callChatGPT(messages, callback, onDone) {
+  let apiKey;
   try {
-    accessToken = await getAccessToken();
+    apiKey = await getApiKey();
   } catch (e) {
-    callback('Please login at <a href="https://chat.openai.com" target="_blank" class="hover:text-slate-800">chat.openai.com</a> first.');
+    callback('Please add your Open AI API key to the settings of this Chrome Extension.');
   }
-  await fetchSSE("https://chat.openai.com/backend-api/conversation", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify({
-      action: "next",
-      messages: [
-        {
-          id: crypto.randomUUID(),
-          role: "user",
-          content: {
-            content_type: "text",
-            parts: [question],
-          },
-        },
-      ],
-      model: "text-davinci-002-render",
-      parent_message_id: crypto.randomUUID(),
-    }),
-    onMessage(message) {
-      console.debug("sse message", message);
-      if (message === "[DONE]") {
-        onDone();
-        return;
+
+  const api = new ChatGPTAPI({
+    apiKey: apiKey,
+    systemMessage: `You are a programming code change reviewer, provide feedback on the code changes given. Do not introduce yourselves.`
+  })
+
+  let res
+  for (const message of messages) {
+    try {
+      const options = {
+        onProgress: (partialResponse) => callback(partialResponse.text),
       }
-      try {
-        const data = JSON.parse(message);
-        const text = data.message?.content?.parts?.[0];
-        if (text) {
-          callback(text);
-        }
-      } catch (e) {
-        // Sometimes the API returns a datetime string, which causes the JSON parsing
-        // to fail in the middle of the output.
-        console.debug(e.message);
+      if (res) {
+        options.parentMessageId = res.id
       }
+      res = await api.sendMessage(message, options)
+    } catch (e){
+      callback(String(e));
+      onDone();
+      return;
     }
-  });
+  };
+
+  onDone();
 }
+
 const showdown = require('showdown');
 const converter = new showdown.Converter()
 
@@ -146,39 +132,53 @@ async function reviewPR(diffPath, context, title) {
 
   let patch = await fetch (diffPath).then((r) => r.text())
 
-  let prompt = `
-  Act as a code reviewer of a Pull Request, providing feedback on the code changes below. Do not introduce yourselves.
+  // Remove binary files as those are not useful for ChatGPT to provide a review for.
+  // TODO: Implement parse-diff library so that we can remove large lock files or binaries natively.
+  const regex = /GIT\sbinary\spatch(.*)literal\s0/mgis;
+  patch = patch.replace(regex,'')
+
+  let promptPart1 = `
   The change has the following title: ${title}.
-  As a code reviewer, your task is:
+  \n
+  Your task is:
   - Review the code changes (diffs) in the patch and provide feedback.
   - If there are any bugs, highlight them.
+  - Provide details on missed use of best-practices.
   - Does the code do what it says in the commit messages?
   - Do not highlight minor issues and nitpicks.
   - Use bullet points if you have multiple comments.
-  - Be as concise as possible
-  - Assume positive intent
-
+  \n
   You are provided with the code changes in a patch format.
   Each patch entry has the commit message in the Subject line followed by the code changes (diffs) in a unidiff format.
+  Do not provide feedback yet. I will follow-up with a description of the change.`
+  
+  let promptPart2 = `A description was given to help you assist in understand why these changes were made. The description was provided in a markdown format:\n
+   ${context}
+   \n\n
+   Do not provide feedback yet. I will follow-up with the patch.`
 
-  \n\n
-  Patch of the code change to review:
+  let promptPart3 = `Patch of the code change to review:
   \n
   ${patch}
-  \n\n
+  \n\n`
 
-  Additionally, a description was given to help you assist in understanding why these changes were made.
-  \n
-  \n
-  Description of the code change to review in a markdown format:
-  \n
-  ${context}
-  \n`
+  let warning = '';
+  // Truncate our patch if it is too big for ChatGPT to handle.
+  // https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them
+  // ChatGPT 3.5 has a maximum token size of 4096 tokens https://platform.openai.com/docs/models/gpt-3-5
+  // We will use the guidance of 1 token ~= 4 chars in English, minus 1000 chars to be sure.
+  // This means we have 16384, and let's reduce 1000 chars from that.
+  if (promptPart3.length >= 15384) {
+    promptPart3 = promptPart3.slice(0, 15384)
+    warning = 'Your patch was truncated due to its being larger than 4096 tokens or 15384 characters. The review might not be as complete.'
+  }
+
+  const prompt = [promptPart1, promptPart2, promptPart3];
 
   callChatGPT(
     prompt,
     (answer) => {
-      document.getElementById('result').innerHTML = converter.makeHtml(answer)
+      document.getElementById('result').innerHTML = converter.makeHtml(answer + " \n\n" + warning)
     },
     () => {
       chrome.storage.session.set({ [diffPath]: document.getElementById('result').innerHTML })
@@ -186,7 +186,6 @@ async function reviewPR(diffPath, context, title) {
     }
   )
 }
-
 
 async function run() {
 

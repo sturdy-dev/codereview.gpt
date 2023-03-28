@@ -1,5 +1,8 @@
 {
   "manifest_version": 3,
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  },
   "name": "codereview.gpt",
   "version": "0.2.0",
   "description": "Reviews your Pull Requests using ChatGPT so that you can pretend to work",
@@ -17,6 +20,10 @@
     "activeTab",
     "storage"
   ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
   "host_permissions": [
     "https://*.openai.com/",
     "https://*.githubusercontent.com/",
