@@ -148,7 +148,7 @@ async function reviewPR(diffPath, context, title) {
 
   let prompt = `
   Act as a code reviewer of a Pull Request, providing feedback on the code changes below. Do not introduce yourselves.
-  The change is has the following title: ${title}.
+  The change has the following title: ${title}.
   As a code reviewer, your task is:
   - Review the code changes (diffs) in the patch and provide feedback.
   - If there are any bugs, highlight them.
@@ -167,13 +167,12 @@ async function reviewPR(diffPath, context, title) {
   ${patch}
   \n\n
 
-  Additionally, a description was given to help you assist in understand why these changes were made.
+  Additionally, a description was given to help you assist in understanding why these changes were made.
   \n
   \n
   Description of the code change to review in a markdown format:
   \n
   ${context}
-  \n
   \n`
 
   callChatGPT(
