@@ -1,6 +1,6 @@
 {
   "name": "codereview.gpt",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Reviews PRs so that you can pretend to work",
   "private": true,
   "scripts": {

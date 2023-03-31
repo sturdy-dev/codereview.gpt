@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "codereview.gpt",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Reviews your Pull Requests using ChatGPT so that you can pretend to work",
   "icons": {
     "16": "icons/icon_16.png",
