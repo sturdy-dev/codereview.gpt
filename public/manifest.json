@@ -18,15 +18,12 @@
   },
   "permissions": [
     "activeTab",
-    "storage"
+    "storage",
+    "scripting"
   ],
   "options_ui": {
     "page": "options.html",
     "open_in_tab": false
   },
-  "host_permissions": [
-    "https://*.openai.com/",
-    "https://*.githubusercontent.com/",
-    "https://gitlab.com/"
-  ]
+  "host_permissions": ["https://*/*"]
 }
