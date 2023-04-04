@@ -113,4 +113,4 @@ This project is inspired by [clmnin/summarize.site](https://github.com/clmnin/su
 
 ## License
 
-Semantic Code Search is distributed under [MIT](LICENSE.txt).
+codereview.gpt is distributed under [MIT](LICENSE.txt).
