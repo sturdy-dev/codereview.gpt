@@ -113,4 +113,4 @@ This project is inspired by [clmnin/summarize.site](https://github.com/clmnin/su
 
 ## License
 
-Semantic Code Search is distributed under [AGPL-3.0-only](LICENSE.txt). For Apache-2.0 exceptions — <kiril@codeball.ai>
+Semantic Code Search is distributed under [MIT](LICENSE.txt).
