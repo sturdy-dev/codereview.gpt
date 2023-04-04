@@ -204,6 +204,7 @@ async function reviewPR(diffPath, context, title) {
 
 async function run() {
 
+  // Get current tab
   let tab = (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
   let prUrl = document.getElementById('pr-url')
   prUrl.textContent = tab.url
@@ -215,33 +216,55 @@ async function run() {
   let context = ''
   let title = tab.title
 
+  // Simple verification if it would be a self-hosted GitLab instance.
+  // We verify if there is a meta tag present with the content "GitLab". 
+  let isGitLabResult = (await chrome.scripting.executeScript({
+    target:{tabId: tab.id, allFrames: true}, 
+    func: () => { return document.querySelectorAll('meta[content="GitLab"]').length }
+  }))[0];
+
   if (tokens[2] === 'github.com') {
     provider = 'GitHub'
   }
-  else if (tokens[2] === 'gitlab.com') {
+  else if ("result" in isGitLabResult && isGitLabResult.result == 1) {
     provider = 'GitLab'
   }
-  else {
-    error = 'Only github.com or gitlab.com are supported.'
-  }
-
-  let contextRaw = await fetch (tab.url).then((r) => r.text())
-  const contextDom = parse(contextRaw);
 
   if (provider === 'GitHub' && tokens[5] === 'pull') {
     // The path towards the patch file of this change
     diffPath = `https://patch-diff.githubusercontent.com/raw/${tokens[3]}/${tokens[4]}/pull/${tokens[6]}.patch`;
     // The description of the author of the change
-    context = contextDom.querySelector('.markdown-body').textContent;
+    // Fetch it by running a querySelector script specific to GitHub on the active tab
+    const contextExternalResult = (await chrome.scripting.executeScript({
+      target:{tabId: tab.id, allFrames: true}, 
+      func: () => { return document.querySelector('.markdown-body').textContent }
+    }))[0];
+    
+    if ("result" in contextExternalResult) {
+      context = contextExternalResult.result;
+    }
   }
   else if (provider === 'GitLab' && tab.url.includes('/-/merge_requests/')) {
     // The path towards the patch file of this change
     diffPath = tab.url + '.patch';
     // The description of the author of the change
-    context = contextDom.querySelector('.description textarea').getAttribute('data-value');
+    // Fetch it by running a querySelector script specific to GitLab on the active tab
+    const contextExternalResult = (await chrome.scripting.executeScript({
+      target:{tabId: tab.id, allFrames: true}, 
+      func: () => { return document.querySelector('.description textarea').getAttribute('data-value') }
+    }))[0];
+
+    if ("result" in contextExternalResult) {
+      context = contextExternalResult.result;
+    }
   }
   else {
-    error = 'Please open a specific Pull Request or Merge Request on ' + provider
+    if (provider) {
+      error = 'Please open a specific Pull Request or Merge Request on ' + provider
+    }
+    else {
+      error = 'Only GitHub or GitLab (SaaS & self-hosted) are supported.'
+    }
   }
  
   if (error != null) {
