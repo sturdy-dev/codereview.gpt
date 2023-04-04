@@ -30,6 +30,6 @@
     "https://gitlab.com/"
   ],
   "optional_host_permissions": [
-    "https://*/*",
+    "https://*/*"
   ]
 }
