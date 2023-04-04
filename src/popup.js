@@ -146,22 +146,32 @@ async function reviewPR(diffPath, context, title) {
   // This means we have 16384, and let's reduce 1000 chars from that.
   var files = parsediff(patch);
 
-  files.forEach(function(file) {
-    // Ignore lockfiles
+    // Rebuild our patch as if it were different patches
+    files.forEach(function(file) {
+
+      // Ignore lockfiles
     if (file.from.includes("lock.json")) {
       return;
     }
+
     var patchPartArray = [];
-    // Rebuild our patch as if it were different patches
+
     patchPartArray.push("```diff");
-    patchPartArray.push("diff --git a" + file.from + " b"+ file.to);
-    if (file.new === true) {
+    if ("from" in file && "to" in file) {
+      patchPartArray.push("diff --git a" + file.from + " b"+ file.to);
+    }
+    if ("new" in file && file.new === true && "newMode" in file) {
       patchPartArray.push("new file mode " + file.newMode);
     }
-    patchPartArray.push("index " + file.index[0] + " " + file.index[1]);
-    patchPartArray.push("--- " + file.from);
-    patchPartArray.push("+++ " + file.to);
-    patchPartArray.push(file.chunks.map(c => c.changes.map(t => t.content).join("\n")));
+    if ("from" in file) {
+      patchPartArray.push("--- " + file.from);
+    }
+    if ("to" in file) {
+      patchPartArray.push("+++ " + file.to);
+    }
+    if ("chunks" in file) {
+      patchPartArray.push(file.chunks.map(c => c.changes.map(t => t.content).join("\n")));
+    }
     patchPartArray.push("```");
     patchPartArray.push("\nDo not provide feedback yet. I will confirm once all code changes were submitted.");
 
