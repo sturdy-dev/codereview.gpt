@@ -45,7 +45,8 @@ async function getApiKey() {
   let options = await new Promise((resolve) => {
     chrome.storage.sync.get('openai_apikey', resolve);
   });
-  if (!options && !options['openai_apikey']) {
+  console.log(options);
+  if (!options || !options['openai_apikey']) {
     throw new Error("UNAUTHORIZED");
   }
   return options['openai_apikey'];
@@ -57,6 +58,8 @@ async function callChatGPT(messages, callback, onDone) {
     apiKey = await getApiKey();
   } catch (e) {
     callback('Please add your Open AI API key to the settings of this Chrome Extension.');
+    onDone();
+    return;
   }
 
   const api = new ChatGPTAPI({
