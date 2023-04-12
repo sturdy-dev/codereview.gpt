@@ -23,7 +23,7 @@ const xcircle = `
         </svg>
 `
 
-function inProgress(ongoing, failed = false, rerun = true) {
+function inProgress(ongoing, failed = false, rerun = true, run = false) {
   if (ongoing) {
     document.getElementById('status-icon').innerHTML = spinner
     document.getElementById('rerun-btn').classList.add("invisible");
@@ -37,6 +37,10 @@ function inProgress(ongoing, failed = false, rerun = true) {
     if (rerun) {
       document.getElementById('rerun-btn').classList.remove("invisible");
       document.getElementById('codeball-link').classList.remove("invisible");
+      document.getElementById('rerun-btn').innerHTML = 'run again';
+    }
+    if (run) {
+      document.getElementById('rerun-btn').innerHTML = 'run';
     }
   }
 }
@@ -104,7 +108,7 @@ async function callChatGPT(messages, callback, onDone) {
 const showdown = require('showdown');
 const converter = new showdown.Converter()
 
-async function reviewPR(diffPath, context, title) {
+async function reviewPR(diffPath, context, initialPrompt) {
   inProgress(true)
   document.getElementById('result').innerHTML = ''
   chrome.storage.session.remove([diffPath])
@@ -116,20 +120,10 @@ async function reviewPR(diffPath, context, title) {
   let warning = '';
   let patchParts = [];
 
-  promptArray.push(`The change has the following title: ${title}.
-
-    Your task is:
-    - Review the code changes and provide feedback.
-    - If there are any bugs, highlight them.
-    - Provide details on missed use of best-practices.
-    - Does the code do what it says in the commit messages?
-    - Do not highlight minor issues and nitpicks.
-    - Use bullet points if you have multiple comments.
-    - Provide security recommendations if there are any.
+  promptArray.push(initialPrompt + `
 
     You are provided with the code changes (diffs) in a unidiff format.
-    Do not provide feedback yet. I will follow-up with a description of the change in a new message.`
-  );
+    Do not provide feedback yet. I will follow-up with a description of the change in a new message.`);
 
   promptArray.push(`A description was given to help you assist in understand why these changes were made.
     The description was provided in a markdown format. Do not provide feedback yet. I will follow-up with the code changes in diff format in a new message.
@@ -278,10 +272,21 @@ async function run() {
     return // not a pr
   }
 
-  inProgress(true)
+  document.getElementById('prompt').value = `The change has the following title: ${title}.
+
+    Your task is:
+    - Review the code changes and provide feedback.
+    - If there are any bugs, highlight them.
+    - Provide details on missed use of best-practices.
+    - Does the code do what it says in the commit messages?
+    - Do not highlight minor issues and nitpicks.
+    - Use bullet points if you have multiple comments.
+    - Provide security recommendations if there are any.`;
+  
 
   document.getElementById("rerun-btn").onclick = () => {
-    reviewPR(diffPath, context, title)
+    let initialPrompt = document.getElementById('prompt').value;
+    reviewPR(diffPath, context, initialPrompt);
   }
 
   chrome.storage.session.get([diffPath]).then((result) => {
@@ -289,7 +294,7 @@ async function run() {
       document.getElementById('result').innerHTML = result[diffPath]
       inProgress(false)
     } else {
-      reviewPR(diffPath, context, title)
+      inProgress(false, false, true, true)
     }
   })
 }
