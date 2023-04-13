@@ -56,7 +56,7 @@ async function getApiKey() {
   return options['openai_apikey'];
 }
 
-async function callChatGPT(messages, callback, onDone) {
+async function callChatGPT(systemMessage, messages, callback, onDone) {
   let apiKey;
   try {
     apiKey = await getApiKey();
@@ -68,7 +68,7 @@ async function callChatGPT(messages, callback, onDone) {
 
   const api = new ChatGPTAPI({
     apiKey: apiKey,
-    systemMessage: `You are a programming code change reviewer, provide feedback on the code changes given. Do not introduce yourselves.`
+    systemMessage: systemMessage
   })
 
   let res
@@ -108,7 +108,7 @@ async function callChatGPT(messages, callback, onDone) {
 const showdown = require('showdown');
 const converter = new showdown.Converter()
 
-async function reviewPR(diffPath, context, initialPrompt) {
+async function reviewPR(diffPath, systemMessage, initialPrompt, contextPrompt, finalPrompt) {
   inProgress(true)
   document.getElementById('result').innerHTML = ''
   chrome.storage.session.remove([diffPath])
@@ -125,10 +125,7 @@ async function reviewPR(diffPath, context, initialPrompt) {
     You are provided with the code changes (diffs) in a unidiff format.
     Do not provide feedback yet. I will follow-up with a description of the change in a new message.`);
 
-  promptArray.push(`A description was given to help you assist in understand why these changes were made.
-    The description was provided in a markdown format. Do not provide feedback yet. I will follow-up with the code changes in diff format in a new message.
-
-    ${context}`);
+  promptArray.push(contextPrompt);
 
   // Remove binary files as those are not useful for ChatGPT to provide a review for.
   // TODO: Implement parse-diff library so that we can remove large lock files or binaries natively.
@@ -184,10 +181,11 @@ async function reviewPR(diffPath, context, initialPrompt) {
     promptArray.push(part);
   });
 
-  promptArray.push("All code changes have been provided. Please provide me with your code review based on all the changes, context & title provided");
+  promptArray.push(finalPrompt);
 
   // Send our prompts to ChatGPT.
   callChatGPT(
+    systemMessage,
     promptArray,
     (answer) => {
       document.getElementById('result').innerHTML = converter.makeHtml(answer + " \n\n" + warning)
@@ -197,6 +195,27 @@ async function reviewPR(diffPath, context, initialPrompt) {
       inProgress(false)
     }
   )
+}
+
+function setDefaultPrompts(title, context) {
+  document.getElementById('system-role').value = "You are a programming code change reviewer, provide feedback on the code changes given. Do not introduce yourselves.";
+
+  document.getElementById('prompt-initial').value = `The change has the following title: ${title}.
+
+Your task is:
+- Review the code changes and provide feedback.
+- If there are any bugs, highlight them.
+- Provide details on missed use of best-practices.
+- Does the code do what it says in the commit messages?
+- Do not highlight minor issues and nitpicks.
+- Use bullet points if you have multiple comments.
+- Provide security recommendations if there are any.`;
+
+  document.getElementById('prompt-context').value = `A description is given to help you assist in understand why these changes were made. The description is provided in a markdown format:
+${context}
+Do not provide feedback yet. I will follow-up with the code changes in diff format in a new message.`
+
+  document.getElementById('prompt-final').value = "All code changes have been provided. Please provide me with your code review based on all the changes, context & title provided";
 }
 
 async function run() {
@@ -272,21 +291,22 @@ async function run() {
     return // not a pr
   }
 
-  document.getElementById('prompt').value = `The change has the following title: ${title}.
+  setDefaultPrompts(title, context);
 
-    Your task is:
-    - Review the code changes and provide feedback.
-    - If there are any bugs, highlight them.
-    - Provide details on missed use of best-practices.
-    - Does the code do what it says in the commit messages?
-    - Do not highlight minor issues and nitpicks.
-    - Use bullet points if you have multiple comments.
-    - Provide security recommendations if there are any.`;
-  
+  document.getElementById("modify-btn").onclick = () => {
+    if (document.getElementById('prompt-area').style.display === "none") {
+      document.getElementById('prompt-area').style.display = "block";
+    } else {
+      document.getElementById('prompt-area').style.display = "none";
+    }
+  }
 
   document.getElementById("rerun-btn").onclick = () => {
-    let initialPrompt = document.getElementById('prompt').value;
-    reviewPR(diffPath, context, initialPrompt);
+    let systemMessage = document.getElementById('system-role').value;
+    let initialPrompt = document.getElementById('prompt-initial').value;
+    let contextPrompt = document.getElementById('prompt-context').value;
+    let finalPrompt = document.getElementById('prompt-final').value;
+    reviewPR(diffPath, systemMessage, initialPrompt, contextPrompt, finalPrompt);
   }
 
   chrome.storage.session.get([diffPath]).then((result) => {
