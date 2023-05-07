@@ -4,7 +4,7 @@
   <img src="https://raw.githubusercontent.com/sturdy-dev/codereview.gpt/main/public/icons/icon_128.png">
 </p>
 <p align='center'>
-    Review GitHub Pull Requests or GitLab Merge Requests using <a href="https://chat.openai.com" target="_blank">ChatGPT</a> so that you can pretend do work.
+    Review GitHub Pull Requests or GitLab Merge Requests using <a href="https://chat.openai.com" target="_blank">ChatGPT</a>.
 </p>
 <p align='center'>
     <a href="https://github.com/sturdy-dev/codereview.gpt/blob/main/LICENSE.txt">
@@ -35,9 +35,9 @@ https://user-images.githubusercontent.com/4030927/207372123-46d7ee8c-bd3e-4272-8
 
 ## Usage
 
-- Navigate to a GitHub Pull Request that you want a review for.
+- Navigate to a GitHub Pull Request or GitLab Merge Request that you want a review for.
+- Fill in your [OpenAI API token](https://platform.openai.com/account/api-keys) in the Settings of the Chrome Extension
 - Click the extension icon
-- If you have not already, the extension will ask you to log in at [chat.openai.com](https://chat.openai.com)
 - You get code review comments from ChatGPT in the popup window
 
 **NB:** Running the review multiple times often produces different feedback, so if you are dealing with a larger PR, it might be a good idea to do that to get the most out of it.
@@ -48,19 +48,19 @@ https://user-images.githubusercontent.com/4030927/207372123-46d7ee8c-bd3e-4272-8
 
 **Q:** Are the reviews 100% trustworthy?
 
-**A:** Not yet, as of 2022. This tool can help you spot bugs, but as with anything, use your judgement. Sometimes it hallucinates things that sound plausible but are false — in this case, re-run the review.
+**A:** No. This tool can help you spot bugs, but as with anything, use your judgement. Sometimes it hallucinates things that sound plausible but are false — in this case, re-run the review.
 
 ###
 
-**Q:** What aspects of the Pull Request are considered during the review?
+**Q:** What aspects of the Pull Request or Merge Request are considered during the review?
 
-**A:** The model gets the code changes and the commit messages in a [patch](https://git-scm.com/docs/git-format-patch) format.
+**A:** The model gets the code changes and the commit messages in a [patch](https://git-scm.com/docs/git-format-patch) format. Additionally it pulls in the description of the MR/PR.
 
 ###
 
 **Q:** Does the extension post comments on the Pull Request page?
 
-**A:** No. If you want any of the feedback as PR comments, you can just copy paste the output.
+**A:** No. If you want any of the feedback as PR comments, you can copy paste the output.
 
 ###
 
@@ -78,6 +78,7 @@ https://user-images.githubusercontent.com/4030927/207372123-46d7ee8c-bd3e-4272-8
     - appear smart to your colleagues
     - enable a future skynet
     - actually catch some bugs you missed
+    - learn a thing or 2 on best practices
 
 ## Installation
 
@@ -98,7 +99,7 @@ Go to the [extension page](https://chrome.google.com) at the Chrome Web Store an
 
 ## Supported browsers
 
-Currently, only Chrome is supported
+only Chrome is supported
 
 ## Permissions
 
@@ -106,6 +107,7 @@ This is a list of permissions the extension uses with the respective reason.
 
 - `activeTab` is used to get the URL or the active tab. This is needed to fetch the get the Pull Request details
 - `storage` is used to cache the responses from OpenAI
+- `scripting` is used to fetch html content from the Merge Request / Pull Request
 
 ## Credits
 
@@ -113,4 +115,4 @@ This project is inspired by [clmnin/summarize.site](https://github.com/clmnin/su
 
 ## License
 
-codereview.gpt is distributed under [MIT](LICENSE.txt).
+codereview.gpt is distributed under the [MIT](LICENSE.txt) license.
