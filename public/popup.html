@@ -17,8 +17,12 @@
               target="_blank" class="inline text-orange-600 hover:text-orange-500">codeball.ai</a>)</span>
         </div>
         <div id="rerun-btn"
-          class="invisible text-lg border border-slate-900 hover:bg-slate-200 cursor-pointer px-2 rounded-md">
+          class="invisible text-lg border border-slate-900 space-x-1 hover:bg-slate-200 cursor-pointer px-2 rounded-md">
           run again
+        </div>&nbsp;
+        <div id="modify-btn"
+          class="text-lg border border-slate-900 hover:bg-slate-200 cursor-pointer px-2 rounded-md">
+          prompts
         </div>
       </div>
 
@@ -30,12 +34,22 @@
         </div>
       </div>
     </div>
-    <hr />
+    <hr>
+
+    <div id="prompt-area" class="flex" style="display: none;">
+      <h4 class="mb-2 mt-0 text-base font-small leading-tight text-primary">System Role</h4>
+      <textarea id="system-role" rows="1" class="block p-2.5 w-full text-xs"></textarea>
+      <h4 class="mb-2 mt-0 text-base font-small leading-tight text-primary">Initial Prompt</h4>
+      <textarea id="prompt-initial" rows="11" class="block p-2.5 w-full text-xs"></textarea>
+      <h4 class="mb-2 mt-0 text-base font-small leading-tight text-primary">Contextual Prompt</h4>
+      <textarea id="prompt-context" rows="7" class="block p-2.5 w-full text-xs"></textarea>
+      <h4 class="mb-2 mt-0 text-base font-small leading-tight text-primary">Final Prompt</h4>
+      <textarea id="prompt-final" rows="1" class="block p-2.5 w-full text-xs"></textarea>
+      <hr />
+    </div>
 
     <div class="my-4">
-
       <div id="result" class="flex flex-col space-y-2"></div>
-
     </div>
 
     <script src="popup.js"></script>
