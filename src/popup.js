@@ -52,10 +52,20 @@ async function getApiKey() {
   return options['openai_apikey'];
 }
 
+async function getBaseURL() {
+  let options = await new Promise((resolve) => {
+    chrome.storage.sync.get('openai_base_url', resolve);
+  });
+  console.log(options);
+  return options['openai_base_url'];
+}
+
 async function callChatGPT(messages, callback, onDone) {
   let apiKey;
+  let baseURL;
   try {
     apiKey = await getApiKey();
+    baseURL = await getBaseURL();
   } catch (e) {
     callback('Please add your Open AI API key to the settings of this Chrome Extension.');
     onDone();
@@ -64,6 +74,7 @@ async function callChatGPT(messages, callback, onDone) {
 
   const api = new ChatGPTAPI({
     apiKey: apiKey,
+    apiBaseUrl: baseURL,
     systemMessage: `You are a programming code change reviewer, provide feedback on the code changes given. Do not introduce yourselves.`
   })
 

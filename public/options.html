@@ -13,9 +13,15 @@
     </style>
   </head>
   <body>
-    Please store your Open AI API Key here. Fetch one at https://platform.openai.com/account/api-keys.
+    <h2>Open AI API Key</h2>
+    <p>Please store your Open AI API Key. Fetch one at https://platform.openai.com/account/api-keys.</p>
     <input type="password" name="openai_apikey" id="openai_apikey" />
+    <br />
+    <h2>OpenAPI Base URL</h2>
+    <p>Please store your custom OpenAPI Base URL here.</p>
+    <input type="text" name="openai_base_url" id="openai_base_url" value="https://api.openai.com/v1" />
     <div id="status"></div>
+    <br />
     <button id="save">Save</button>
     <script src="options.js"></script>
   </body>
