@@ -86,7 +86,7 @@ You can install `codereview.gpt` from the [Chrome Web Store](https://chrome.goog
 
 ### From the Chrome Web Store (recommended)
 
-Go to the [extension page](https://chrome.google.com) at the Chrome Web Store and add `codereview.gpt`.
+Go to the [extension page]([https://chromewebstore.google.com](https://chrome.google.com/webstore/detail/codereviewgpt/amdfidcajdihmbhmmgohhkoaijpkocdn)) at the Chrome Web Store and add `codereview.gpt`.
 
 ### From source
 
