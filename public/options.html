@@ -1,22 +1,106 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8">
     <title>OpenAI API Key</title>
     <style>
         body {
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            overflow: hidden;
+            overflow: auto;
+            min-height: 100vh;
+            padding: 20px 0;
+            margin: 0;
         }
     </style>
   </head>
   <body>
-    Please store your Open AI API Key here. Fetch one at https://platform.openai.com/account/api-keys.
-    <input type="password" name="openai_apikey" id="openai_apikey" />
-    <div id="status"></div>
-    <button id="save">Save</button>
+    <div style="display: flex; flex-direction: column; gap: 15px; padding: 20px; max-width: 700px; width: 100%; box-sizing: border-box;">
+      <label for="openai_apikey">
+        <strong>API Key:</strong><br/>
+        <small>Your OpenAI API key or compatible service API key</small>
+      </label>
+      <input type="password" name="openai_apikey" id="openai_apikey" placeholder="sk-..." style="width: 100%; padding: 5px;" />
+
+      <label for="api_base_url">
+        <strong>API Base URL (Optional):</strong><br/>
+        <small>Leave empty for OpenAI (https://api.openai.com). Use for OpenAI-compatible servers (e.g., localhost:1234/v1, https://api.example.com/v1)</small>
+      </label>
+      <input type="text" name="api_base_url" id="api_base_url" placeholder="https://api.openai.com" style="width: 100%; padding: 5px;" />
+
+      <label for="model">
+        <strong>Model (Optional):</strong><br/>
+        <small>Leave empty to use default. Examples: gpt-4, gpt-4-turbo, gpt-3.5-turbo, gpt-4o, etc.</small>
+      </label>
+      <input type="text" name="model" id="model" placeholder="gpt-3.5-turbo" list="model-suggestions" style="width: 100%; padding: 5px;" />
+      <datalist id="model-suggestions">
+        <option value="gpt-4o">gpt-4o (Latest, recommended)</option>
+        <option value="gpt-4o-mini">gpt-4o-mini (Fast, cheaper)</option>
+        <option value="gpt-4-turbo">gpt-4-turbo</option>
+        <option value="gpt-4">gpt-4</option>
+        <option value="gpt-3.5-turbo">gpt-3.5-turbo (Default, cheaper)</option>
+        <option value="gpt-3.5-turbo-16k">gpt-3.5-turbo-16k</option>
+      </datalist>
+
+      <label for="api_timeout">
+        <strong>API Timeout (seconds, Optional):</strong><br/>
+        <small>Maximum time to wait for API response. Default: 300 seconds (5 minutes)</small>
+      </label>
+      <input type="number" name="api_timeout" id="api_timeout" placeholder="300" min="30" max="600" style="width: 100%; padding: 5px;" />
+
+      <label for="max_tokens">
+        <strong>Max Tokens (Optional):</strong><br/>
+        <small>Maximum length of AI response. Default: 8192. Reduce if getting errors, increase for longer reviews.</small>
+      </label>
+      <input type="number" name="max_tokens" id="max_tokens" placeholder="8192" min="1024" max="32768" step="1024" style="width: 100%; padding: 5px;" />
+
+      <label for="temperature">
+        <strong>Temperature (Optional):</strong><br/>
+        <small>Controls randomness (0.0 = focused/deterministic, 1.0 = creative/varied). Default: 0.1</small>
+      </label>
+      <input type="number" name="temperature" id="temperature" placeholder="0.7" min="0" max="2" step="0.1" style="width: 100%; padding: 5px;" />
+
+      <label for="debug_mode" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <input type="checkbox" name="debug_mode" id="debug_mode" />
+        <span>
+          <strong>Debug Mode</strong><br/>
+          <small>Включить подробные логи в консоли браузера (для диагностики проблем)</small>
+        </span>
+      </label>
+
+      <hr style="margin: 20px 0; border: none; border-top: 1px solid #ccc;" />
+
+      <label for="system_prompt">
+        <strong>System Prompt:</strong><br/>
+        <small>The system message that defines the AI's role and behavior</small>
+      </label>
+      <textarea name="system_prompt" id="system_prompt" rows="2" style="width: 100%; padding: 8px; font-family: monospace; font-size: 13px; resize: vertical;" placeholder="You are a programming code change reviewer..."></textarea>
+
+      <label for="review_prompt">
+        <strong>Review Instructions Prompt:</strong><br/>
+        <small>Main instructions for the code review. Available variables: {title}</small>
+      </label>
+      <textarea name="review_prompt" id="review_prompt" rows="10" style="width: 100%; padding: 8px; font-family: monospace; font-size: 13px; resize: vertical;" placeholder="The change has the following title: {title}..."></textarea>
+
+      <label for="final_prompt">
+        <strong>Final Request Prompt:</strong><br/>
+        <small>The final message asking for the review summary</small>
+      </label>
+      <textarea name="final_prompt" id="final_prompt" rows="3" style="width: 100%; padding: 8px; font-family: monospace; font-size: 13px; resize: vertical;" placeholder="All code changes have been provided..."></textarea>
+
+      <hr style="margin: 20px 0; border: none; border-top: 1px solid #ccc;" />
+
+      <label for="explain_prompt">
+        <strong>AI Explain Prompt:</strong><br/>
+        <small>Instructions for AI when explaining selected text. Available variable: {text} (selected code). The user's question is always sent as a separate message.</small>
+      </label>
+      <textarea name="explain_prompt" id="explain_prompt" rows="8" style="width: 100%; padding: 8px; font-family: monospace; font-size: 13px; resize: vertical;" placeholder="Explain the following text..."></textarea>
+
+      <div id="status" style="color: green;"></div>
+      <button id="save" style="padding: 10px; cursor: pointer;">Save</button>
+      <button id="reset" style="padding: 10px; cursor: pointer; margin-left: 10px;">Reset Prompts to Default</button>
+    </div>
     <script src="options.js"></script>
   </body>
 </html>

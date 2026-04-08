@@ -1,118 +1,109 @@
 # codereview.gpt
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/sturdy-dev/codereview.gpt/main/public/icons/icon_128.png">
-</p>
-<p align='center'>
-    Review GitHub Pull Requests or GitLab Merge Requests using <a href="https://chat.openai.com" target="_blank">ChatGPT</a>.
-</p>
-<p align='center'>
-    <a href="https://github.com/sturdy-dev/codereview.gpt/blob/main/LICENSE.txt">
-        <img alt="GitHub"
-        src="https://img.shields.io/github/license/sturdy-dev/codereview.gpt">
-    </a>
-    <a href="https://chrome.google.com/webstore/detail/codereviewgpt/amdfidcajdihmbhmmgohhkoaijpkocdn">
-      <img alt="Chrome Web Store"
-      src="https://img.shields.io/chrome-web-store/v/amdfidcajdihmbhmmgohhkoaijpkocdn">
-    </a>
-</p>
-<p align="center">
-  <a href="#overview">🔍 Overview</a> •
-  <a href="#usage">💻 Usage</a> •
-  <a href="#faq">📖 FAQ</a> •
-  <a href="#installation">🔧 Installation</a>
-</p>
+Chrome extension that reviews Pull Requests using ChatGPT and provides AI-powered code explanations.
 
-## Overview
+## Features
 
-This is a Chrome extension which reviews Pull Requests for you using [ChatGPT](https://chat.openai.com/).
+### Code Review
 
-Here's an example output for [this](https://github.com/sturdy-dev/semantic-code-search/pull/17) Pull Request:
+Automatically reviews GitHub PRs and GitLab MRs with AI-generated feedback.
 
-https://user-images.githubusercontent.com/4030927/207372123-46d7ee8c-bd3e-4272-8ccb-4639f9f71458.mp4
+**[SCREENSHOT: Review window showing code feedback]**
 
-![example screenshot](https://raw.githubusercontent.com/sturdy-dev/codereview.gpt/main/docs/codereview_gpt_screenshot_1.png)
-
-## Usage
-
-- Navigate to a GitHub Pull Request or GitLab Merge Request that you want a review for.
-- Fill in your [OpenAI API token](https://platform.openai.com/account/api-keys) in the Settings of the Chrome Extension
+How to use:
+- Open any GitHub PR or GitLab MR
 - Click the extension icon
-- You get code review comments from ChatGPT in the popup window
+- Get instant AI review with streaming response
 
-**NB:** Running the review multiple times often produces different feedback, so if you are dealing with a larger PR, it might be a good idea to do that to get the most out of it.
+The extension analyzes commit messages, code changes (in patch format), and PR description to provide relevant feedback.
 
-## FAQ
+### AI Chat for Code Explanation
 
-###
+Chat-style interface for understanding any code you encounter.
 
-**Q:** Are the reviews 100% trustworthy?
+**[SCREENSHOT: Chat window with selected code context]**
 
-**A:** No. This tool can help you spot bugs, but as with anything, use your judgement. Sometimes it hallucinates things that sound plausible but are false — in this case, re-run the review.
+How to use:
+- Select text on any webpage (code, errors, docs)
+- Right-click → "Объяснить с помощью AI"
+- Ask questions in the chat or hit send for general explanation
+- Get follow-up clarifications in the same conversation
 
-###
+The selected code stays as context throughout the conversation. Each new selection starts a fresh chat.
 
-**Q:** What aspects of the Pull Request or Merge Request are considered during the review?
+## Configuration
 
-**A:** The model gets the code changes and the commit messages in a [patch](https://git-scm.com/docs/git-format-patch) format. Additionally it pulls in the description of the MR/PR.
+Access settings via extension icon → Options (opens in new tab).
 
-###
+**[SCREENSHOT: Options page showing all settings]**
 
-**Q:** Does the extension post comments on the Pull Request page?
+Available parameters:
+- **API Key** - Your OpenAI or compatible API key
+- **Base URL** - Custom API endpoint (default: OpenAI)
+- **Model** - Which model to use (gpt-4, claude, etc.)
+- **Max Tokens** - Response length limit (default: 8192)
+  - Lower values: shorter responses, better reliability
+  - Higher values: longer responses, may cause errors with some providers
+  - Recommended: 4096-8192 for most use cases
+- **Temperature** - Creativity level (0.0-2.0, default: 0.1)
+  - 0.0: Focused and deterministic
+  - 1.0: More creative and varied
+- **Prompts** - Customize system instructions, review format, and explanation style
 
-**A:** No. If you want any of the feedback as PR comments, you can copy paste the output.
+### Finding the Right max_tokens
 
-###
-
-**Q:** Is this a GPT wrapper?
-
-**A:** Yes, [but](https://twitter.com/creatine_cycle/status/1600331160776998913)
-
-###
-
-**Q:** Why would you want this?
-
-**A:** Plenty of reasons! You can:
-
-    - pretend to work while playing games instead
-    - appear smart to your colleagues
-    - enable a future skynet
-    - actually catch some bugs you missed
-    - learn a thing or 2 on best practices
+Start with 8192. If you get errors, reduce to 6144 or 4096. If responses get cut off, increase to 12288.
 
 ## Installation
 
-You can install `codereview.gpt` from the [Chrome Web Store](https://chrome.google.com/webstore/detail/codereviewgpt/amdfidcajdihmbhmmgohhkoaijpkocdn) or build it from source locally.
+### From Chrome Web Store
 
-### From the Chrome Web Store (recommended)
+Install from [Chrome Web Store](https://chrome.google.com/webstore/detail/codereviewgpt/amdfidcajdihmbhmmgohhkoaijpkocdn).
 
-Go to the [extension page](https://chrome.google.com) at the Chrome Web Store and add `codereview.gpt`.
+### Build from source
 
-### From source
+```bash
+git clone https://github.com/sturdy-dev/codereview.gpt.git
+cd codereview.gpt
+npm install
+npm run build
+```
 
-- Clone this repository `git clone foo && cd foo`
-- Install the dependencies `npm install`
-- Run the build script `npm run build`
-- Navigate to `chrome://extensions`
-- Enable Developer Mode
-- Click the 'Load unpacked' button and navigate to the `build` directory in the project
+Then:
+1. Go to `chrome://extensions`
+2. Enable "Developer mode"
+3. Click "Load unpacked"
+4. Select the `build` folder
 
-## Supported browsers
+## FAQ
 
-only Chrome is supported
+**Are the reviews trustworthy?**  
+Use them as suggestions, not gospel. AI can spot real issues but also hallucinates occasionally. Re-run the review if something seems off.
 
-## Permissions
+**What data does it analyze?**  
+The extension sends code diffs (patch format), commit messages, and PR/MR description to the API. Nothing is stored on any servers - everything goes directly to your configured API endpoint.
 
-This is a list of permissions the extension uses with the respective reason.
+**Does it post comments automatically?**  
+No. The review appears only in the extension window. Copy-paste any useful feedback manually.
 
-- `activeTab` is used to get the URL or the active tab. This is needed to fetch the get the Pull Request details
-- `storage` is used to cache the responses from OpenAI
-- `scripting` is used to fetch html content from the Merge Request / Pull Request
+**Why use this?**  
+Catch bugs you missed, learn best practices, get a second opinion, or just pretend to work while gaming.
 
-## Credits
+## Privacy
 
-This project is inspired by [clmnin/summarize.site](https://github.com/clmnin/summarize.site)
+- All API calls go directly to your configured endpoint (OpenAI, OpenRouter, local server, etc.)
+- No data is sent to third-party servers
+- API keys are stored locally in Chrome's secure storage
+- Reviews are cached temporarily in session storage for performance
+
+## Supported Browsers
+
+Chrome and Chromium-based browsers (Edge, Brave, etc.)
 
 ## License
 
-codereview.gpt is distributed under the [MIT](LICENSE.txt) license.
+MIT - see [LICENSE.txt](LICENSE.txt)
+
+---
+
+Original project by [sturdy-dev](https://github.com/sturdy-dev/codereview.gpt)

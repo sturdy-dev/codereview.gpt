@@ -10,8 +10,9 @@ const PATHS = require('./paths');
 const config = (env, argv) =>
   merge(common, {
     entry: {
-      popup: PATHS.src + '/popup.js',
       options: PATHS.src + '/options.js',
+      content: PATHS.src + '/content.js',
+      background: PATHS.src + '/background.js',
     },
     devtool: argv.mode === 'production' ? false : 'source-map',
     experiments: {
